@@ -1,2 +1,3 @@
-# sticky notes
-Sticky note built using rust
+# Sticky notes
+Building sticky notes with Rust
+>>>>>>> dev
