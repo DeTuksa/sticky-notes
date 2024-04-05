@@ -1,5 +1,6 @@
 
 mod gui;
+mod note;
 
 use gtk::prelude::*;
 use gtk::Application;
