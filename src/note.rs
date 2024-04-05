@@ -4,15 +4,13 @@ use std::io;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Note {
-    pub id: usize,
     pub text: String,
     pub created_at: String
 }
 
 impl Note {
-    pub fn new(id: usize, text: String, created_at: String) -> Self {
+    pub fn new(text: String, created_at: String) -> Self {
         Note {
-            id,
             text,
             created_at
         }

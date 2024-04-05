@@ -1,6 +1,6 @@
 extern crate gtk;
 
-use gtk::glib::DateTime;
+use chrono::Utc;
 use gtk::prelude::*;
 use gtk::ApplicationWindow;
 use gtk::Orientation;
@@ -34,10 +34,13 @@ pub fn build_ui(app: &gtk::Application) {
 
 
     add_button.connect_clicked(move |_| {
-        let note = [Note::new(
-            1, entry_clone.text().to_string(), "Now".to_string()
-        )];
-        if let Err(err) = Note::save_notes(&note, "notes.json") {
+
+        let mut notes = Note::load_notes("notes.json").expect("Failed to load");
+        let note = Note::new(
+            entry_clone.text().to_string(), Utc::now().to_rfc3339()
+        );
+        notes.push(note);
+        if let Err(err) = Note::save_notes(&notes, "notes.json") {
             eprintln!("Error saving notes: {}", err);
         } else {
             println!("Notes saved successfully!");
@@ -55,7 +58,7 @@ pub fn build_ui(app: &gtk::Application) {
         for note in notes {
             let note_window = ApplicationWindow::builder()
             .application(app)
-            .title(&format!("Note {}", note.id))
+            .title(&format!("Note {}", note.created_at))
             .default_width(300)
             .default_height(200)
             .build();
