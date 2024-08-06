@@ -1,8 +1,11 @@
 extern crate gtk;
 
+use chrono::Utc;
 use gtk::prelude::*;
 use gtk::ApplicationWindow;
 use gtk::Orientation;
+
+use crate::note::Note;
 
 pub fn build_ui(app: &gtk::Application) {
     let window = ApplicationWindow::builder()
@@ -31,7 +34,17 @@ pub fn build_ui(app: &gtk::Application) {
 
 
     add_button.connect_clicked(move |_| {
-        println!("Note added: {}", entry_clone.text().as_str());
+
+        let mut notes = Note::load_notes("notes.json").expect("Failed to load");
+        let note = Note::new(
+            entry_clone.text().to_string(), Utc::now().to_rfc3339()
+        );
+        notes.push(note);
+        if let Err(err) = Note::save_notes(&notes, "notes.json") {
+            eprintln!("Error saving notes: {}", err);
+        } else {
+            println!("Notes saved successfully!");
+        }
     });
 
     vbox.add(&entry);
@@ -40,4 +53,21 @@ pub fn build_ui(app: &gtk::Application) {
     window.set_child(Some(&vbox));
 
     window.show_all();
+
+    if let Ok(notes) = Note::load_notes("notes.json") {
+        for note in notes {
+            let note_window = ApplicationWindow::builder()
+            .application(app)
+            .title(&format!("Note {}", note.created_at))
+            .default_width(300)
+            .default_height(200)
+            .build();
+
+        let note_label = gtk::Label::new(Some(&note.text));
+        note_window.set_child(Some(&note_label));
+        note_window.show_all();
+        }
+    } else {
+        eprintln!("Error loading notes.");
+    }
 }
